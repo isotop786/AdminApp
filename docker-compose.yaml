@@ -1,0 +1,46 @@
+version:  '3.7'
+services:
+  frontend:
+    image: maruf786/admin
+    depends_on: 
+      - backend
+    networks:
+      - app
+
+
+  backend: 
+    container_name: amdin_api
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment: 
+      DB_HOST: db
+      DB_DATABASE: admin
+      DB_USERNAME: root 
+      DB_PASSWORD: root
+    ports: 
+    - 8000:8000
+    volumes: 
+    - .:/app
+    depends_on: 
+      - db
+    networks:
+      - app
+      
+
+  db:
+    container_name: amdin_db
+    image: mysql:5.7.22
+    environment: 
+      MYSQL_DATABSE: amdin_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    volumes:
+    - .dbdata:/var/lib/mysql
+    ports: 
+    - 33866:3386 
+    networks:
+      - app
+
+networks:
+  app:    
