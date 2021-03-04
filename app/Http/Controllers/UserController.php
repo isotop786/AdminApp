@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserCreateRequest;
+use App\Http\Requests\UserUpdateRequest;
 use Illuminate\Http\Request;
 use App\User;
+// use Facade\FlareClient\Http\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Response;
+
 
 
 class UserController extends Controller
@@ -20,29 +25,31 @@ class UserController extends Controller
     }
 
     // storing in database
-    public function store(Request $request)
+    public function store(UserCreateRequest $request)
     {
         $user = User::create([
             'first_name'=>$request->input('first_name'),
             'last_name'=>$request->input('last_name'),
             'email'=>$request->input('email'),
-            'password'=> Hash::make($request->input('password'))
+            'password'=> Hash::make(1234)
         ]);
 
         return response($user,201);
     }
 
-    public function update(Request $request, $id)
+    public function update(UserUpdateRequest $request, $id)
     {
         $user = User::find($id);
 
-        $user->update([
-            'first_name'=>$request->input('first_name'),
-            'last_name'=>$request->input('last_name'),
-            'email'=>$request->input('email'),
-            'password'=>Hash::make($request->input('password'))
-        ]);
+        $user->update($request->only('first_name','last_name','email'));
 
         return response($user,201);
+    }
+
+    public function destroy($id)
+    {
+        User::destroy($id);
+
+        return response(null,Response::HTTP_NO_CONTENT);
     }
 }
