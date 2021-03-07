@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 //user's route
 Route::group(['middleware'=>'auth:api'],function(){
     Route::apiResource('users','UserController');
+    Route::get('user','UserController@user');
+    Route::put('updateinfo','UserController@updateInfo');
+    Route::put('user/password','UserController@passwordReset');
 });
 
 // login route
