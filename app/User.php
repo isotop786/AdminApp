@@ -7,22 +7,18 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 // use Laravel\Passport\HasApiTokens;
 use Laravel\Passport\HasApiTokens;
+use App\Role;
 
 
 
 class User extends Authenticatable
 {
     use HasApiTokens, Notifiable;
-     
-   
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'first_name','last_name', 'email', 'password',
+    protected $guarded = ['id'];
+
+     protected $fillable = [
+        'first_name','last_name', 'email', 'password','role_id'
     ];
 
     /**
@@ -33,6 +29,12 @@ class User extends Authenticatable
     protected $hidden = [
         'password'
     ];
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
 
     /**
      * The attributes that should be cast to native types.

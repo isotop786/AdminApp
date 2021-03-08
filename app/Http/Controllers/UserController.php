@@ -14,37 +14,41 @@ use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\PasswordResetRequest;
 use App\Http\Requests\UpdateUserInfo;
+use App\Http\Resources\UserResource;
 
 class UserController extends Controller
 {
     public function index(){
-        return User::paginate(10);
+        $user = User::with('role')->paginate(10);
+
+        return UserResource::collection($user);
     }
 
     public function show($id){
-        return User::findOrFail($id);
+        // return User::with('role')->findOrFail($id);
+        $user = User::with('role')->findOrFail($id);
+        return new UserResource($user);
     }
 
     // storing in database
     public function store(UserCreateRequest $request)
     {
-        $user = User::create([
-            'first_name'=>$request->input('first_name'),
-            'last_name'=>$request->input('last_name'),
-            'email'=>$request->input('email'),
-            'password'=> Hash::make(1234)
+        $user = User::create($request->only('first_name','last_name','email','role_id')
+        +[
+            'password'=>Hash::make(1234)
         ]);
 
-        return response($user,201);
+        return response(new UserResource($user),201);
+        // return new UserResource($user);
     }
 
     public function update(UserUpdateRequest $request, $id)
     {
         $user = User::find($id);
 
-        $user->update($request->only('first_name','last_name','email'));
+        $user->update($request->only('first_name','last_name','email','role_id'));
 
-        return response($user,201);
+        return response(new UserResource($user),201);
     }
 
     public function destroy($id)
@@ -60,7 +64,7 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
-        return $user;
+        return new UserResource($user);
 
     }
     // User Info Update
@@ -68,7 +72,7 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $user->update($request->only('first_name','last_name','email'));
-        return response($user,Response::HTTP_ACCEPTED);
+        return response(new UserResource($user),Response::HTTP_ACCEPTED);
     }
 
     public function passwordReset(PasswordResetRequest $request)
@@ -79,6 +83,6 @@ class UserController extends Controller
            'password'=>Hash::make($request->input('password'))
        ]);
 
-       return response($user,Response::HTTP_ACCEPTED);
+       return response(new UserResource($user),Response::HTTP_ACCEPTED);
     }
 }
